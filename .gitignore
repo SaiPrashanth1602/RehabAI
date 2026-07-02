@@ -1,5 +1,5 @@
 # Virtual Environment (CRITICAL - saves you from tracking thousands of package files)
-.venv/
+venv/
 ENV/
 env/
 

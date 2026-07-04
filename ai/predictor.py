@@ -1,64 +1,79 @@
-from ai.movement_engine import RehabFeatureExtractor
-from ai.recovery_engine import RecoveryIntelligenceEngine
-from ai.deviation_engine import DeviationAnalysisEngine
+"""
+RehabAI Dynamic Rule-Based Decision Module
+Sprint 7.1 Component - Universal Multi-Phase Clinical Boundary Evaluator
 
-class RehabPredictor:
-    def __init__(self):
-        self.ai = RehabFeatureExtractor()
-        self.rec = RecoveryIntelligenceEngine()
-        self.dev = DeviationAnalysisEngine()
+Parses serialized real-time kinematics vectors against dynamic thresholds
+loaded straight out of config registries based on patient recovery timelines.
+"""
 
-    def get_analysis(self, landmarks):
-        joints = self.ai.extract_joints(landmarks)
+import numpy as np
+from typing import Dict, Any, List
+
+class RulePredictor:
+    def __init__(self, exercise_config: Dict[str, Any], patient_phase: int = 1):
+        """Initializes boundary structures bound to configuration matrices and target phase profiles."""
+        self.config = exercise_config
+        self.feature_order: List[str] = exercise_config["features"]
+        self.ex_id = self.config.get("id", "")
         
-        if joints is None:
-            return {
-                "status": "WAITING_FOR_SETUP", "rep_count": 0, "rom": 0.0, "movement_quality": 0.0,
-                "recovery_score": 0.0, "recovery_deviation": 0.0, "trend": "N/A",
-                "recommendation": "Please stand back and ensure full leg is visible."
-            }
+        # Clamp patient phase boundaries to valid structural domains [1, 2, 3]
+        self.phase = max(1, min(3, int(patient_phase)))
+        self.thresholds = self.config.get("phase_thresholds", {}).get(self.phase, {})
+
+    def predict(self, feature_vector: np.ndarray) -> str:
+        """
+        Parses dense float feature matrices against dynamic phase boundaries.
+        Returns: 'GREEN', 'YELLOW', or 'RED' safety status metrics.
+        """
+        if feature_vector is None or len(feature_vector) == 0:
+            return "RED"
             
-        sh_coord = [landmarks[12].x, landmarks[12].y, landmarks[12].z]
-        ft_coord = [landmarks[30].x, landmarks[30].y, landmarks[30].z]
-        
-        feat = self.ai.process_frame(joints[0], joints[1], joints[2], shoulder=sh_coord, foot=ft_coord)
-        ris = self.rec.calculate_ris(feat['rom'], feat.get('movement_smoothness', 1.0), feat['rep_count'], 5, 3)
-        analysis = self.dev.analyze_trajectory(ris, 65.0, 70.0)
-        
-        comp_pct = min(feat['rep_count'] / 5, 1.0) * 100
-        total_attempts = feat['rep_count'] + feat.get('failed_reps', 0)
-        succ_rate = f"{round((feat['rep_count'] / total_attempts) * 100, 1)}%" if total_attempts > 0 else "N/A"
+        f_map = dict(zip(self.feature_order, feature_vector.tolist()))
 
-        return {
-            "status": self.ai.state,
-            "recommendation": analysis['recommendation'],
-            "recovery_score": ris,
-            "recovery_deviation": analysis['deviation'],
-            "trend": analysis['trend'],
+        # 1️⃣ EX-001: HEEL_SLIDE Routing Logic
+        if self.ex_id == "EX-001":
+            val = f_map.get("knee_flexion_angle", 0.0)
+            limits = self.thresholds.get("knee_flexion_angle", [90.0, 100.0])
+            return "RED" if val > limits[1] else "YELLOW" if val > limits[0] else "GREEN"
             
-            # --- downstream mapping properties expansion ---
-            "knee_angle": feat.get('knee_angle', feat['angle']),
-            "hip_angle": feat.get('hip_angle', 170.0),
-            "ankle_angle": feat.get('ankle_angle', 110.0),
-            "rom": feat['rom'],
-            "peak_flexion": feat.get('peak_flexion', feat['angle']),
-            "peak_extension": feat.get('peak_extension', feat['angle']),
-            "angular_velocity": feat.get('angular_velocity', 0.0),
-            "angular_acceleration": feat.get('angular_acceleration', 0.0),
-            "peak_velocity": feat.get('peak_velocity', 0.0),
-            "average_velocity": feat.get('average_velocity', 0.0),
-            "rep_count": feat['rep_count'],
-            "rep_duration": feat.get('rep_duration', 0.0),
-            "hold_duration": feat.get('hold_duration', 0.0),
-            "average_rep_time": feat.get('average_rep_time', 0.0),
-            "exercise_time": feat.get('exercise_time', 0.0),
-            "rest_time": feat.get('rest_time', 0.0),
-            "time_under_tension": feat.get('time_under_tension', 0.0),
-            "movement_quality": feat['movement_quality'],
-            "movement_smoothness": feat.get('movement_smoothness', 1.0),
-            "rom_consistency": feat.get('rom_consistency', 1.0),
-            "exercise_completion": comp_pct,
-            "success_rate": succ_rate,
-            "failed_rep_count": feat.get('failed_reps', 0),
-            "limb_symmetry_index": "NOT AVAILABLE (Requires Bilateral Leg Tracking)"
-        }
+        # 2️⃣ EX-002: STRAIGHT_LEG_RAISE Routing Logic
+        elif self.ex_id == "EX-002":
+            lag = f_map.get("extensor_lag_angle", 0.0)
+            hip = f_map.get("hip_flexion_angle", 0.0)
+            
+            lag_limits = self.thresholds.get("extensor_lag_angle", [1.5, 3.0])
+            hip_limits = self.thresholds.get("hip_flexion_angle", [45.0, 55.0])
+            
+            if lag > lag_limits[1] or hip > hip_limits[1]:
+                return "RED"
+            elif lag > lag_limits[0] or hip > hip_limits[0]:
+                return "YELLOW"
+            return "GREEN"
+            
+        # 3️⃣ EX-003: LONG_ARC_QUAD Routing Logic
+        elif self.ex_id == "EX-003":
+            dev = f_map.get("terminal_extension_deviation", 0.0)
+            limits = self.thresholds.get("terminal_extension_deviation", [5.0, 15.0])
+            return "RED" if dev > limits[1] else "YELLOW" if dev > limits[0] else "GREEN"
+            
+        # 4️⃣ EX-004: MINI_SQUAT Routing Logic
+        elif self.ex_id == "EX-004":
+            dep = f_map.get("knee_flexion_depth", 0.0)
+            vlg = f_map.get("frontal_plane_knee_projection_angle", 0.0)
+            
+            dep_limits = self.thresholds.get("knee_flexion_depth", [60.0, 75.0])
+            vlg_limits = self.thresholds.get("frontal_plane_knee_projection_angle", [10.0, 15.0])
+            
+            if dep > dep_limits[1] or vlg > vlg_limits[1]:
+                return "RED"
+            elif dep > dep_limits[0] or vlg > vlg_limits[0]:
+                return "YELLOW"
+            return "GREEN"
+            
+        # 5️⃣ EX-005: SIT_TO_STAND Routing Logic
+        elif self.ex_id == "EX-005":
+            trunk = f_map.get("trunk_flexion_angle", 0.0)
+            limits = self.thresholds.get("trunk_flexion_angle", [35.0, 45.0])
+            return "RED" if trunk > limits[1] else "YELLOW" if trunk > limits[0] else "GREEN"
+
+        return "GREEN"

@@ -1,18 +1,19 @@
-# Virtual Environment (CRITICAL - saves you from tracking thousands of package files)
-.venv/
-ENV/
-env/
-
-# Firebase & Secrets
-backend/credentials/
-.env
-
-# Databases & Cache files
-backend/rehab.db
+# Python
 __pycache__/
 *.pyc
-.DS_Store
 
-# Large datasets or models (since you have empty folders for these)
-datasets/
-models/
+# Virtual Environment
+.venv/
+
+# VS Code
+.vscode/
+
+# SQLite
+*.db
+
+# Exports
+exports/
+
+# OS
+.DS_Store
+Thumbs.db

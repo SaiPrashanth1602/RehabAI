@@ -15,4 +15,6 @@ __pycache__/
 
 # Large datasets or models (since you have empty folders for these)
 datasets/
-models/
+models/-e "*.zip\n*.db\n__pycache__/\n.venv/" 
+-e "*.zip\n*.db\n__pycache__/\n.venv/" 
+-e "\nUI-PRMD-Analysis-master/\n*.zip\n*.pkl\n*.db\n.venv/\n.venv311/" 

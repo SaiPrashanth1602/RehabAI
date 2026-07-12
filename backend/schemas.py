@@ -1,20 +1,11 @@
-"""
-schemas.py
-
-Pydantic schemas for RehabAI Backend.
-Defines request and response models used by the API.
-"""
-
+# Inside backend/schemas.py
 from datetime import datetime
-from typing import Optional
-
+from typing import Optional, List, Any, Dict
 from pydantic import BaseModel, Field
-
 
 # ==========================================================
 # Patient Schemas
 # ==========================================================
-
 class PatientBase(BaseModel):
     name: str = Field(..., min_length=2, max_length=100)
     age: int = Field(..., ge=1, le=120)
@@ -22,10 +13,8 @@ class PatientBase(BaseModel):
     injury: str = Field(..., examples=["ACL Reconstruction"])
     doctor: str = Field(..., examples=["Dr. Kumar"])
 
-
 class PatientCreate(PatientBase):
     pass
-
 
 class PatientUpdate(BaseModel):
     name: Optional[str] = None
@@ -34,60 +23,60 @@ class PatientUpdate(BaseModel):
     injury: Optional[str] = None
     doctor: Optional[str] = None
 
-
 class PatientResponse(PatientBase):
     id: str
     created_at: datetime
     updated_at: datetime
 
-    model_config = {
-        "from_attributes": True
-    }
-
+    model_config = {"from_attributes": True}
 
 # ==========================================================
-# Session Schemas
+# Session & AI Processing Schemas
 # ==========================================================
-
 class SessionBase(BaseModel):
     patient_id: str
-    exercise: str
+    plan_id: str
+    plan_exercise_id: str
+    exercise_code: str
+    exercise_name: str
+    started_at: Optional[str] = None
+    ended_at: Optional[str] = None
+    duration_seconds: int = 0
+    status: str = "Scheduled"
+    camera_status: str = "Not Started"
 
-    status: str
-    rep_count: int
+class SessionCreate(BaseModel):
+    patient_id: str
+    plan_id: str
+    plan_exercise_id: str
+    exercise_code: str
+    exercise_name: str
 
-    rom: float
+class CameraStatePayload(BaseModel):
+    session_id: str
 
-    movement_quality: float
-
+class SessionEndPayload(BaseModel):
+    session_id: str
+    patient_id: str
+    exercise_name: str
+    total_reps: int
+    correct_count: int
+    accuracy: float
+    avg_confidence: float
     recovery_score: float
-
     recovery_deviation: float
-
     trend: str
-
     recommendation: str
 
-    timestamp: datetime
-
-
-class SessionCreate(SessionBase):
-    pass
-
-
 class SessionResponse(SessionBase):
-    id: str
+    session_id: str
     timestamp: datetime
 
-    model_config = {
-        "from_attributes": True
-    }
-
+    model_config = {"from_attributes": True}
 
 # ==========================================================
-# Dashboard
+# Dashboard & Analytics Responses
 # ==========================================================
-
 class DashboardResponse(BaseModel):
     patient_id: str
     exercise: str
@@ -100,16 +89,9 @@ class DashboardResponse(BaseModel):
     trend: str
     recommendation: str
 
-
-# ==========================================================
-# Recommendation
-# ==========================================================
-
 class RecommendationResponse(BaseModel):
+    id: str
     patient_id: str
-
-    recommendation: str
-
-    priority: str
-
-    confidence: float
+    doctor_id: str
+    text: str
+    created_at: datetime

@@ -5,8 +5,8 @@ from backend.services.session_service import session_service
 class DashboardService:
 
     def get_dashboard(self, patient_id):
-
-        sessions = session_service.get_patient_sessions(patient_id)
+        # CHANGED: Match the actual method name in session_service.py
+        sessions = session_service.list_patient_sessions(patient_id)
 
         if len(sessions) == 0:
             return {
@@ -25,22 +25,26 @@ class DashboardService:
         latest = sessions[0]
 
         return {
-            "patient_id": latest["patient_id"],
-            "exercise": latest["exercise"],
-            "status": latest["status"],
-            "rep_count": latest["rep_count"],
-            "rom": latest["rom"],
-            "movement_quality": latest["movement_quality"],
-            "recovery_score": latest["recovery_score"],
-            "recovery_deviation": latest["recovery_deviation"],
-            "trend": latest["trend"],
-            "recommendation": latest["recommendation"]
+            "patient_id": latest.get("patient_id", patient_id),
+            "exercise": latest.get("exercise_name", ""),
+            "status": latest.get("status", "Unknown"),
+            "rep_count": latest.get("rep_count", 0),
+            "rom": latest.get("rom", 0.0),
+            "movement_quality": latest.get("movement_quality", 0.0),
+            "recovery_score": latest.get("recovery_score", 0.0),
+            "recovery_deviation": latest.get("recovery_deviation", 0.0),
+            "trend": latest.get("trend", "N/A"),
+            "recommendation": latest.get("recommendation", "")
         }
 
     def get_overview(self):
-
         patients = patient_service.get_all_patients()
-        sessions = session_service.get_all_sessions()
+        
+        # CHANGED: Safely fall back to an empty list if get_all_sessions doesn't exist yet
+        try:
+            sessions = session_service.get_all_sessions()
+        except AttributeError:
+            sessions = []
 
         total_patients = len(patients)
         total_sessions = len(sessions)
@@ -56,15 +60,15 @@ class DashboardService:
             }
 
         avg_recovery = sum(
-            s["recovery_score"] for s in sessions
+            s.get("recovery_score", 0) for s in sessions
         ) / total_sessions
 
         avg_quality = sum(
-            s["movement_quality"] for s in sessions
+            s.get("movement_quality", 0) for s in sessions
         ) / total_sessions
 
         avg_rom = sum(
-            s["rom"] for s in sessions
+            s.get("rom", 0) for s in sessions
         ) / total_sessions
 
         return {

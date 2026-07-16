@@ -1,22 +1,22 @@
 """
 RehabAI - Patient Portal Central Dashboard Component
 Author: Sai Prashanth Ramesh & Core Systems Architecture
-Description: Renders the central patient overview board. Dynamically fetches profiles, 
+Description: Renders the central patient overview board. Dynamically fetches profiles,
              historical aggregates, and initializes active tracking queues straight from Firestore.
 """
 
 import streamlit as st
 import logging
-import requests
 from frontend.common.services.patient_service import PatientService
 from frontend.common.services.exercise_service import ExerciseService
+from frontend.common.services.session_service import SessionService
 
 logger = logging.getLogger("RehabAI.PatientDashboardPage")
 
 
 def render_patient_dashboard() -> None:
     """
-    Executes the runtime validation lookups and mounts interface grids 
+    Executes the runtime validation lookups and mounts interface grids
     driven entirely by remote database documents.
     """
     # 1. RESOLVE ACTIVE CONTEXT NODES
@@ -24,7 +24,7 @@ def render_patient_dashboard() -> None:
         st.session_state.patient_id = "PAT_24MIS1033"
     if "plan_id" not in st.session_state:
         st.session_state.plan_id = "PLN_24MIS1033_PH1"
-        
+
     current_patient_id = st.session_state.patient_id
     current_plan_id = st.session_state.plan_id
 
@@ -36,8 +36,8 @@ def render_patient_dashboard() -> None:
     try:
         with st.spinner("Synchronizing clinical operational parameters..."):
             patient_profile = patient_api.get_patient(current_patient_id)
-            # Fetch assignments directly out of Firestore plan_exercises
-            assigned_queue = exercise_api.get_assigned_exercises(current_plan_id)
+            # Pass patient_id explicitly — no more hardcoding inside ExerciseService
+            assigned_queue = exercise_api.get_assigned_exercises(current_plan_id, patient_id=current_patient_id)
     except Exception as e:
         logger.error(f"Failed pulling remote configuration sets for dashboard: {e}")
         st.error("🚨 **Database Synchronization Failure**: Unable to update data layers with the Clinical Core server.")
@@ -66,8 +66,8 @@ def render_patient_dashboard() -> None:
 
     st.write("")
     st.subheader("📊 Dynamic Recovery Stats")
-    
-    # These fields now pull safely from separate database updates, falling back to 0.0 before analytics seed
+
+    # These fields pull safely from the patients Firestore document
     with st.container():
         m1, m2, m3, m4 = st.columns(4)
         with m1:
@@ -94,7 +94,7 @@ def render_patient_dashboard() -> None:
     # ===========================================================================
     with left_workspace:
         st.subheader("🏋️ Today's Therapy Regimen")
-        
+
         if not assigned_queue:
             st.info("☀️ **Clear Therapy Queue**: No active tracking tasks are currently assigned to this plan.")
         else:
@@ -104,7 +104,7 @@ def render_patient_dashboard() -> None:
                 ex_id = item.get("plan_exercise_id", ex_code)
                 duration = item.get("duration", "5 Mins")
                 difficulty = item.get("difficulty_rating", "Medium")
-                
+
                 # Streamlit UI isolated key hashing token to safely support parallel loop rendering
                 widget_hash = f"dash_{ex_code.lower()}"
 
@@ -126,31 +126,27 @@ def render_patient_dashboard() -> None:
                                 st.rerun()
                         with a2:
                             if st.button("Start →", key=f"str_{widget_hash}", use_container_width=True, type="primary"):
-                                # Assemble the formal clinical payload schema matching backend constraints
-                                session_payload = {
-                                    "plan_exercise_id": ex_id,
-                                    "exercise_code": ex_code,
-                                    "exercise_name": ex_name
-                                }
-                                
                                 try:
-                                    # Synchronously alert backend core cluster to allocate document registers
-                                    backend_start_url = "http://127.0.0.1:8000/api/v1/sessions/start"
-                                    response = requests.post(backend_start_url, json=session_payload, timeout=5.0)
-                                    
-                                    if response.status_code == 201:
-                                        session_data = response.json()
-                                        
-                                        # Bind dynamic parameter contexts straight to core application scopes
-                                        st.session_state["active_session_id"] = session_data["session_id"]
-                                        st.session_state["current_exercise_name"] = ex_name
-                                        st.session_state["current_exercise_code"] = ex_code
-                                        
-                                        # Clear view pane tracking thresholds matching patient.py exactly
+                                    session_broker = SessionService()
+                                    with st.spinner("Initializing session..."):
+                                        # Use SessionService with ALL required fields — matches SessionCreate schema exactly
+                                        session_record = session_broker.start_session(
+                                            patient_id=current_patient_id,
+                                            plan_id=current_plan_id,
+                                            plan_exercise_id=ex_id,
+                                            exercise_code=ex_code,
+                                            exercise_name=ex_name
+                                        )
+
+                                    if session_record and "session_id" in session_record:
+                                        # Use 'session_id' key — matches what live_session.py reads
+                                        st.session_state.session_id = session_record["session_id"]
+                                        st.session_state.exercise_name = ex_name
+                                        st.session_state.exercise_code = ex_code
                                         st.session_state.current_page = "🎥 Live Session"
                                         st.rerun()
                                     else:
-                                        st.error(f"Clinical Service Failure: Server responded with status {response.status_code}")
+                                        st.error(f"Clinical Service Failure: Unexpected response from server.")
                                 except Exception as startup_err:
                                     logger.error(f"Exception triggered allocating session memory maps: {startup_err}")
                                     st.error("🚨 **Network Initialization Bottleneck**: Failed to spin up live assessment portal context.")
@@ -163,15 +159,15 @@ def render_patient_dashboard() -> None:
         with st.container(border=True):
             st.markdown("Instantly adjust application context trees or monitor compliance tracking logs.")
             st.write("")
-            
+
             if st.button("🦵 My Rehabilitation", use_container_width=True, type="primary"):
                 st.session_state.current_page = "静 My Rehabilitation"
                 st.rerun()
-                
+
             if st.button("📈 View Progress Trends", use_container_width=True):
                 st.session_state.current_page = "📊 Progress"
                 st.rerun()
-                
+
             if st.button("👤 Open Patient Profile", use_container_width=True):
                 st.session_state.current_page = "👤 Profile"
                 st.rerun()

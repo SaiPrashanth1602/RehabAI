@@ -96,7 +96,7 @@ class PatientService:
 
         metrics_payload = {
             "recovery_score": recovery_score,
-            "rom": current_rom,
+            "current_rom": current_rom,
             "movement_quality": movement_quality,
             "updated_at": datetime.utcnow()
         }

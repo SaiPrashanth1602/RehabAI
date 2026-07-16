@@ -75,13 +75,19 @@ def render_session_summary_page() -> None:
         )
 
     st.write("")
-    
+
     # Secondary breakdowns row
-    r1, r2 = st.columns(2)
+    r1, r2, r3, r4 = st.columns(4)
     with r1:
         st.metric(label="🟢 Correct Repetitions", value=f"{correct_reps} reps")
     with r2:
         st.metric(label="🔴 Incorrect Repetitions", value=f"{incorrect_reps} reps")
+    with r3:
+        avg_rom_val = float(session_data.get("avg_rom", 0.0))
+        st.metric(label="📐 Avg ROM", value=f"{avg_rom_val:.1f}°")
+    with r4:
+        avg_quality_val = float(session_data.get("avg_movement_quality", 0.0))
+        st.metric(label="🏅 Movement Quality", value=f"{avg_quality_val:.1f}%")
 
     st.write("")
     
@@ -128,7 +134,7 @@ def render_session_summary_page() -> None:
         if st.button("🔄 Start New Exercise Run", use_container_width=True, type="secondary"):
             if "rep_frame_buffer" in st.session_state:
                 st.session_state.rep_frame_buffer = []
-            st.session_state.current_page = "📋 My Rehabilitation"
+            st.session_state.current_page = "静 My Rehabilitation"
             st.rerun()
             
     with right_btn:

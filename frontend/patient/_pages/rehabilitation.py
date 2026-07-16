@@ -20,8 +20,11 @@ def render_rehabilitation_page() -> None:
     # 1. RESOLVE RUNTIME PLAN KEYS
     if "plan_id" not in st.session_state:
         st.session_state.plan_id = "PLN_24MIS1033_PH1"
-        
+    if "patient_id" not in st.session_state:
+        st.session_state.patient_id = "PAT_24MIS1033"
+
     current_plan_id = st.session_state.plan_id
+    current_patient_id = st.session_state.patient_id
     exercise_api = ExerciseService()
 
     # 2. HEADER NAVIGATION LAYER
@@ -39,7 +42,7 @@ def render_rehabilitation_page() -> None:
     plan_queue = []
     try:
         with st.spinner("Fetching active therapy regimen metrics..."):
-            plan_queue = exercise_api.get_assigned_exercises(current_plan_id)
+            plan_queue = exercise_api.get_assigned_exercises(current_plan_id, patient_id=current_patient_id)
     except Exception as e:
         logger.error(f"Failed pulling prescription records for tracking frame '{current_plan_id}': {e}")
         st.caption("⚠️ *Unable to synchronize exercise regimen registry streams with Firestore.*")

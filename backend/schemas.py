@@ -67,6 +67,9 @@ class SessionEndPayload(BaseModel):
     recovery_deviation: float
     trend: str
     recommendation: str
+    duration_seconds: int = 0
+    avg_rom: float = 0.0
+    avg_movement_quality: float = 0.0
 
 class SessionResponse(SessionBase):
     session_id: str

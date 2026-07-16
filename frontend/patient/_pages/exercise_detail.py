@@ -44,9 +44,9 @@ def render_exercise_detail_page() -> None:
         with st.spinner("Synchronizing movement specifications from Firestore..."):
             # Fetch global template specs (muscles, description, media URLs)
             library_data = exercise_api.get_exercise_details(exercise_code)
-            
+
             # Fetch user-specific plan targets (sets, reps, custom clinical notes)
-            assigned_queue = exercise_api.get_assigned_exercises(plan_id)
+            assigned_queue = exercise_api.get_assigned_exercises(plan_id, patient_id=patient_id)
             for item in assigned_queue:
                 if item.get("exercise_code") == exercise_code:
                     plan_exercise_data = item

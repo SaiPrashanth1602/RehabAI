@@ -59,9 +59,6 @@ class RehabFeatureExtractor:
         # Base architecture tracks Hip(24), Knee(26), Ankle(28)
         indices = [24, 26, 28] 
         
-        # DEBUG: Print confidence scores to terminal
-        print(f"DEBUG: Hip:{landmarks[24].visibility:.2f} | Knee:{landmarks[26].visibility:.2f} | Ankle:{landmarks[28].visibility:.2f}")
-        
         # Relaxed threshold for easier testing
         threshold = 0.3 
         

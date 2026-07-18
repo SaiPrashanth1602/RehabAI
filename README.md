@@ -2,14 +2,14 @@
 
 <br/>
 
-```
-██████╗ ███████╗██╗  ██╗ █████╗ ██████╗      █████╗ ██╗
-██╔══██╗██╔════╝██║  ██║██╔══██╗██╔══██╗    ██╔══██╗██║
+<pre>
+██████╗ ███████╗██╗   ██╗ █████╗ ██████╗      █████╗ ██╗
+██╔══██╗██╔════╝██║   ██║██╔══██╗██╔══██╗    ██╔══██╗██║
 ██████╔╝█████╗  ███████║███████║██████╔╝    ███████║██║
 ██╔══██╗██╔══╝  ██╔══██║██╔══██║██╔══██╗    ██╔══██║██║
-██║  ██║███████╗██║  ██║██║  ██║██████╔╝    ██║  ██║██║
-╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝     ╚═╝  ╚═╝╚═╝
-```
+██║  ██║███████╗██║   ██║██║  ██║██████╔╝    ██║  ██║██║
+╚═╝  ╚═╝╚══════╝╚═╝   ╚═╝╚═╝  ╚═╝╚═════╝     ╚═╝  ╚═╝╚═╝
+</pre>
 
 # RehabAI
 
@@ -27,9 +27,9 @@
 
 <br/>
 
-![Status](https://img.shields.io/badge/Status-Active_Development-brightgreen?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Project_Completed-brightgreen?style=flat-square)
 ![License](https://img.shields.io/badge/License-Proprietary-red?style=flat-square)
-![Context](https://img.shields.io/badge/Context-Internship_%7C_Research_%7C_Startup-blueviolet?style=flat-square)
+![Context](https://img.shields.io/badge/Context-Academic_Project-blueviolet?style=flat-square)
 ![Dataset](https://img.shields.io/badge/Dataset-UI--PRMD_(Clinical)-blue?style=flat-square)
 
 <br/>
@@ -62,7 +62,7 @@
 
 **RehabAI** is a full-stack, hybrid rehabilitation intelligence platform that combines **real-time computer vision**, **clinical-grade biomechanics analysis**, and **dual-role portals** — one for patients and one for clinicians — into a single, deployable system.
 
-At its core, RehabAI uses **Google MediaPipe Pose** to extract 3D skeletal landmarks from a standard webcam feed, processes them through a custom **Kinematics Engine** to derive biomechanical metrics, and scores each session using a proprietary **Recovery Intelligence Score (RIS)**. A suite of **Random Forest classifiers** trained on the **UI-PRMD** clinical dataset further classifies exercise form as correct or incorrect across four movement protocols.
+At its core, RehabAI uses **Google MediaPipe Pose** to extract 3D skeletal landmarks from a standard webcam feed, processes them through a custom **Kinematics Engine** to derive biomechanical metrics, and scores each session using a custom **Recovery Intelligence Score (RIS)**. A suite of **Random Forest classifiers** trained on the **UI-PRMD** clinical dataset further classifies exercise form as correct or incorrect across four movement protocols.
 
 > Unlike fragmented academic tools or consumer fitness apps, RehabAI is purpose-built for the clinical rehabilitation workflow — bridging the gap between in-clinic supervision and data-driven at-home care.
 
@@ -107,7 +107,7 @@ A finite state machine tracks exercise phases (EXTENSION → FLEXION → EXTENSI
 <td width="50%" valign="top">
 
 ### 📊 Recovery Intelligence Score (RIS)
-A proprietary composite metric (0–100) computed as a weighted sum of: mobility (ROM, 40%), movement quality (smoothness, 30%), session consistency (rep completion, 20%), and patient comfort (pain rating, 10%).
+A custom composite metric (0–100) computed as a weighted sum of: mobility (ROM, 40%), movement quality (smoothness, 30%), session consistency (rep completion, 20%), and patient comfort (pain rating, 10%).
 
 </td>
 </tr>
@@ -210,6 +210,7 @@ graph TB
     AUTH & PAT & SES --> FS
     API --> PT_UI
     API --> DR_UI
+
 ```
 
 ---
@@ -239,6 +240,7 @@ sequenceDiagram
     DB->>API: Acknowledge write
     API->>UI: GET session history / analytics
     UI->>UI: Render patient & doctor dashboards
+
 ```
 
 ---
@@ -250,7 +252,7 @@ sequenceDiagram
 The **University of Idaho Physical Rehabilitation Movements Dataset (UI-PRMD)** is a publicly available clinical-grade dataset containing full-body motion capture recordings of patients performing 10 rehabilitation exercises. RehabAI uses **three movement protocols** for binary form classification (Correct / Incorrect):
 
 | Code | Exercise | Description |
-|---|---|---|
+| --- | --- | --- |
 | `m03` | Lunge | Single-leg forward lunge with knee tracking |
 | `m05` | STS | Sit-to-Stand transition from a chair |
 | `m06` | ASLR | Active Straight Leg Raise — hip flexor activation |
@@ -281,55 +283,17 @@ RandomForestClassifier
   │
   ▼
 Output: Binary label — Correct Form / Incorrect Form
+
 ```
 
 ### Evaluation Results — Cross-Subject Generalizability Analysis
 
 > Evaluation methodology: Cross-subject hold-out fold validation. Each model evaluated on unseen subjects.
 
-<table>
-<thead>
-<tr>
-<th>Model</th>
-<th>Accuracy</th>
-<th>Macro Precision</th>
-<th>Macro Recall</th>
-<th>Macro F1</th>
-<th>Support</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>🏃 <b>Lunge RF</b></td>
-<td><b>81%</b></td>
-<td>0.81</td>
-<td>0.81</td>
-<td><b>0.81</b></td>
-<td>380</td>
-</tr>
-<tr>
-<td>🪑 <b>STS RF</b></td>
-<td><b>75%</b></td>
-<td>0.75</td>
-<td>0.75</td>
-<td><b>0.75</b></td>
-<td>400</td>
-</tr>
-<tr>
-<td>🦵 <b>ASLR RF</b></td>
-<td><b>74%</b></td>
-<td>0.74</td>
-<td>0.74</td>
-<td><b>0.74</b></td>
-<td>400</td>
-</tr>
-</tbody>
-</table>
-
 **Confusion Matrices:**
 
 | Model | TP (Correct ✓) | FP | FN | TN (Incorrect ✓) |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Lunge | 151 | 39 | 35 | 155 |
 | STS | 145 | 55 | 44 | 156 |
 | ASLR | 143 | 57 | 47 | 153 |
@@ -339,7 +303,7 @@ Output: Binary label — Correct Form / Incorrect Form
 $$RIS = \left[\left(\frac{ROM_{max}}{130°} \times 0.40\right) + \left(Smoothness \times 0.30\right) + \left(\frac{Reps_{done}}{Reps_{target}} \times 0.20\right) + \left(\frac{10 - Pain}{10} \times 0.10\right)\right] \times 100$$
 
 | Component | Weight | Metric Source |
-|---|---|---|
+| --- | --- | --- |
 | Mobility | **40%** | Peak ROM / Target ROM (130°) |
 | Movement Quality | **30%** | Acceleration variance smoothness score |
 | Session Consistency | **20%** | Completed reps / Prescribed reps |
@@ -350,7 +314,7 @@ $$RIS = \left[\left(\frac{ROM_{max}}{130°} \times 0.40\right) + \left(Smoothnes
 ## 🗂️ Tech Stack
 
 | Layer | Technology | Version | Role |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **Pose Estimation** | MediaPipe | Latest | Real-time 33-keypoint body pose tracking |
 | **Computer Vision** | OpenCV | 4.10.0 | Frame capture, image processing, HUD overlay |
 | **ML Framework** | scikit-learn | 1.9.0 | Random Forest training, inference, evaluation |
@@ -375,7 +339,7 @@ $$RIS = \left[\left(\frac{ROM_{max}}{130°} \times 0.40\right) + \left(Smoothnes
 RehabAI/
 │
 ├── 📄 main.py                        # Standalone live CV analytics loop (MediaPipe + HUD)
-├── 📄 requirements_clean.txt         # Consolidated dependency manifest
+├── 📄 requirements_clean.txt          # Consolidated dependency manifest
 │
 ├── 🧠 ai/                            # Edge analytics & rehabilitation intelligence
 │   ├── engine.py                     # Core pipeline orchestrator
@@ -406,7 +370,7 @@ RehabAI/
 │   ├── services/                     # Business logic layer
 │   └── database/                     # Database utilities & connections
 │
-├── 🖥️ frontend/                       # Streamlit UI portals
+├── 🖥️ frontend/                        # Streamlit UI portals
 │   ├── patient/
 │   │   └── patient.py                # Patient portal entry point
 │   ├── doctor/
@@ -433,6 +397,7 @@ RehabAI/
 │   └── evaluation_plots/             # Training evaluation output graphs
 │
 └── 🔬 UI-PRMD-Analysis-master/        # Raw clinical dataset (not tracked in git)
+
 ```
 
 ---
@@ -441,16 +406,17 @@ RehabAI/
 
 ### Prerequisites
 
-- **Python 3.11+** (tested on 3.11.x)
-- **Git**
-- A **webcam** for live pose tracking
-- A valid **Firebase project** with Firestore enabled
+* **Python 3.11+** (tested on 3.11.x)
+* **Git**
+* A **webcam** for live pose tracking
+* A valid **Firebase project** with Firestore enabled
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/RehabAI.git
+git clone [https://github.com/your-username/RehabAI.git](https://github.com/your-username/RehabAI.git)
 cd RehabAI
+
 ```
 
 ### 2. Create a Virtual Environment
@@ -463,19 +429,24 @@ python -m venv .venv
 
 # macOS / Linux
 source .venv/bin/activate
+
 ```
 
 ### 3. Install Dependencies
 
 **Option A — Consolidated (recommended):**
+
 ```bash
 pip install -r requirements_clean.txt
+
 ```
 
 **Option B — Per-module:**
+
 ```bash
 pip install -r backend/requirements.txt
 pip install -r frontend/requirements.txt
+
 ```
 
 > **Note:** MediaPipe is included in `requirements_clean.txt`. On some systems you may need to install it separately: `pip install mediapipe`
@@ -486,14 +457,20 @@ pip install -r frontend/requirements.txt
 2. Enable **Firestore** in Native mode
 3. Generate a **Service Account Key** (JSON) from Project Settings → Service Accounts
 4. Save it to:
-   ```
-   backend/credentials/firebase_key.json
-   ```
+```
+backend/credentials/firebase_key.json
+
+```
+
+
 5. Create a `.env` file in the project root:
-   ```env
-   FIREBASE_KEY_PATH=backend/credentials/firebase_key.json
-   SECRET_KEY=your-jwt-secret-key
-   ```
+```env
+FIREBASE_KEY_PATH=backend/credentials/firebase_key.json
+SECRET_KEY=your-jwt-secret-key
+
+```
+
+
 
 ### 5. (Optional) Download Dataset & Train Models
 
@@ -501,6 +478,7 @@ To retrain models from scratch, download the **UI-PRMD dataset** and place it at
 
 ```bash
 python -m ml.train_models
+
 ```
 
 Pre-trained `.pkl` files are already included under `ml/models/`.
@@ -515,6 +493,7 @@ Runs the standalone real-time pose tracking pipeline with HUD overlay. No backen
 
 ```bash
 python main.py
+
 ```
 
 > Stand in front of your webcam. The system will detect your pose, extract biomechanical features in real-time, and display joint angles and rep counts on-screen. Press **`q`** to quit.
@@ -523,10 +502,11 @@ python main.py
 
 ```bash
 uvicorn backend.api:app --reload --host 0.0.0.0 --port 8000
+
 ```
 
 | Endpoint | URL |
-|---|---|
+| --- | --- |
 | 📖 Swagger UI (API Docs) | http://127.0.0.1:8000/docs |
 | 📄 ReDoc | http://127.0.0.1:8000/redoc |
 | 💚 Health Check | http://127.0.0.1:8000/health |
@@ -535,24 +515,28 @@ uvicorn backend.api:app --reload --host 0.0.0.0 --port 8000
 
 ```bash
 streamlit run frontend/patient/patient.py
+
 ```
 
 ### 🧑‍⚕️ Launch Doctor Portal
 
 ```bash
 streamlit run frontend/doctor/dashboard.py
+
 ```
 
 ### 🌲 Train ML Models
 
 ```bash
 python -m ml.train_models
+
 ```
 
 ### 📊 Evaluate Models
 
 ```bash
 python -m ml.evaluate_models
+
 ```
 
 > Outputs per-exercise classification reports and confusion matrices to the console, and saves evaluation plots to `ml/evaluation_plots/`.
@@ -563,20 +547,6 @@ python -m ml.evaluate_models
 
 > 📷 **Screenshots coming soon** — UI captures of the patient portal, doctor dashboard, and live CV overlay will be added here.
 
-<!--
-PATIENT PORTAL
-![Patient Portal Dashboard](assets/screenshots/patient_dashboard.png)
-
-DOCTOR PORTAL
-![Doctor Analytics Dashboard](assets/screenshots/doctor_dashboard.png)
-
-LIVE CV ANALYTICS
-![Live Pose Tracking & HUD](assets/screenshots/live_cv_overlay.png)
-
-MODEL EVALUATION
-![Model Evaluation Plots](assets/screenshots/evaluation_results.png)
--->
-
 ---
 
 ## 🗺️ Roadmap
@@ -584,7 +554,7 @@ MODEL EVALUATION
 The following improvements are planned for future versions of RehabAI:
 
 | Priority | Feature | Description |
-|---|---|---|
+| --- | --- | --- |
 | 🔴 High | **SPARC-Based Smoothness** | Replace variance-based smoothness with SPARC (Spectral Arc Length) — a clinically validated movement quality metric |
 | 🔴 High | **LSTM / Transformer Classifier** | Replace Random Forest with a deep learning temporal sequence model for improved generalizability across unseen subjects |
 | 🟡 Medium | **Limb Symmetry Index (LSI)** | Contralateral limb tracking via dual-camera or stereo setup for bilateral symmetry analysis |
@@ -599,10 +569,10 @@ The following improvements are planned for future versions of RehabAI:
 
 ## 📜 Acknowledgements
 
-- **Vakanski et al.** — Authors of the [UI-PRMD Dataset](https://www.webpages.uidaho.edu/ui-prmd/), University of Idaho. The clinical motion capture data powering RehabAI's exercise quality classifiers.
-- **Google MediaPipe Team** — For the open-source [MediaPipe Pose](https://developers.google.com/mediapipe/solutions/vision/pose_landmarker) solution enabling markerless real-time biomechanics analysis without specialized hardware.
-- **FastAPI** and **Streamlit** communities — For building the production-grade open-source tools that make a full-stack Python AI application possible.
-- **Firebase / Google Cloud** — For scalable, serverless NoSQL persistence infrastructure via Firestore.
+* **Vakanski et al.** — Authors of the [UI-PRMD Dataset](https://www.webpages.uidaho.edu/ui-prmd/), University of Idaho. The clinical motion capture data powering RehabAI's exercise quality classifiers.
+* **Google MediaPipe Team** — For the open-source [MediaPipe Pose](https://developers.google.com/mediapipe/solutions/vision/pose_landmarker) solution enabling markerless real-time biomechanics analysis without specialized hardware.
+* **FastAPI** and **Streamlit** communities — For building the production-grade open-source tools that make a full-stack Python AI application possible.
+* **Firebase / Google Cloud** — For scalable, serverless NoSQL persistence infrastructure via Firestore.
 
 ---
 
@@ -615,22 +585,11 @@ This software and its source code are proprietary and confidential.
 Unauthorized copying, distribution, modification, or use of this
 software, in whole or in part, is strictly prohibited without the
 express prior written permission of the copyright holder.
+
 ```
 
 ---
 
-<div align="center">
-
-<br/>
-
 **Built with ❤️ for the future of accessible, intelligent rehabilitation.**
 
 *RehabAI — Bringing clinical-grade biomechanics to every camera-equipped device.*
-
-<br/>
-
-![Made with Python](https://img.shields.io/badge/Made%20with-Python-3776AB?style=flat-square&logo=python&logoColor=white)
-![Powered by MediaPipe](https://img.shields.io/badge/Powered%20by-MediaPipe-0F9D58?style=flat-square&logo=google&logoColor=white)
-![Backed by Firebase](https://img.shields.io/badge/Backed%20by-Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black)
-
-</div>

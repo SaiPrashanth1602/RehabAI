@@ -576,6 +576,8 @@ python -m ml.evaluate_models
 #### Session Summary
 ![Session Summary](assets/screenshots/session_summary.png)
 
+#### Progress Dashboard
+![Progress Dashboard](assets/screenshots/progress_dashboard.png)
 
 ---
 
@@ -607,7 +609,6 @@ python -m ml.evaluate_models
 ---
 
 ## ⚖️ License
-
 ```
 Copyright © 2026 RehabAI. All Rights Reserved.
 

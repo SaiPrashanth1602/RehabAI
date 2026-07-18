@@ -312,18 +312,27 @@ $$RIS = \left[\left(\frac{ROM_{max}}{130°} \times 0.40\right) + \left(Smoothnes
 | Session Consistency | **20%** | Completed reps / Prescribed reps |
 | Patient Comfort | **10%** | (10 − Pain rating) / 10 |
 
-### 📊 Evaluation Outputs
+### 📊 Visual Evaluation Results
 
-Visual analysis of model performance across all three exercises:
+Comprehensive cross-subject validation analysis for all three exercises:
 
-#### Lunge Evaluation
-![Lunge Evaluation](assets/results/lunge_evaluation.png)
+#### 🏃 Lunge (m03)
 
-#### Sit-to-Stand Evaluation
-![STS Evaluation](assets/results/sts_evaluation.png)
+| Fold Accuracy | Confusion Matrix | Feature Importance |
+|---|---|---|
+| ![Lunge Fold Accuracy](ml/evaluation_plots/m03_fold_accuracy.png) | ![Lunge Confusion Matrix](ml/evaluation_plots/m03_confusion_matrix.png) | ![Lunge Feature Importance](ml/evaluation_plots/m03_feature_importance.png) |
 
-#### ASLR Evaluation
-![ASLR Evaluation](assets/results/aslr_evaluation.png)
+#### 🪑 Sit-to-Stand (m05)
+
+| Fold Accuracy | Confusion Matrix | Feature Importance |
+|---|---|---|
+| ![STS Fold Accuracy](ml/evaluation_plots/m05_fold_accuracy.png) | ![STS Confusion Matrix](ml/evaluation_plots/m05_confusion_matrix.png) | ![STS Feature Importance](ml/evaluation_plots/m05_feature_importance.png) |
+
+#### 🦵 ASLR (m06)
+
+| Fold Accuracy | Confusion Matrix | Feature Importance |
+|---|---|---|
+| ![ASLR Fold Accuracy](ml/evaluation_plots/m06_fold_accuracy.png) | ![ASLR Confusion Matrix](ml/evaluation_plots/m06_confusion_matrix.png) | ![ASLR Feature Importance](ml/evaluation_plots/m06_feature_importance.png) |
 
 ---
 
@@ -410,30 +419,28 @@ RehabAI/
 │   │   ├── ASLR_RF.pkl                # ASLR classifier (~1.7 MB)
 │   │   └── scaler.joblib              # Feature normalization scaler
 │   └── evaluation_plots/              # Training evaluation output graphs
+│       ├── m03_fold_accuracy.png      # Lunge cross-fold validation accuracy
+│       ├── m03_confusion_matrix.png   # Lunge confusion matrix
+│       ├── m03_feature_importance.png # Lunge feature importance ranking
+│       ├── m05_fold_accuracy.png      # STS cross-fold validation accuracy
+│       ├── m05_confusion_matrix.png   # STS confusion matrix
+│       ├── m05_feature_importance.png # STS feature importance ranking
+│       ├── m06_fold_accuracy.png      # ASLR cross-fold validation accuracy
+│       ├── m06_confusion_matrix.png   # ASLR confusion matrix
+│       └── m06_feature_importance.png # ASLR feature importance ranking
 │
 ├── 📂 assets/                          # Documentation & media assets
-│   ├── architecture/                  # System & ML architecture diagrams
-│   │   ├── system_architecture.png
-│   │   ├── workflow.png
-│   │   └── ml_pipeline.png
-│   ├── results/                       # Model evaluation charts & confusion matrices
-│   │   ├── accuracy_comparison.png
-│   │   ├── confusion_matrix_lunge.png
-│   │   ├── confusion_matrix_sts.png
-│   │   ├── confusion_matrix_aslr.png
-│   │   ├── feature_importance_lunge.png
-│   │   ├── feature_importance_sts.png
-│   │   └── feature_importance_aslr.png
-│   ├── screenshots/                   # UI interface captures
-│   │   ├── dashboard.png
-│   │   ├── my_rehabilitation.png
-│   │   ├── exercise_details.png
-│   │   ├── live_session.png
-│   │   ├── session_summary.png
-│   │   └── progress_dashboard.png
-│   └── demo/                          # Workflow GIF & demo video
-│       ├── workflow.gif
-│       └── demo.mp4
+│   ├── demo/                          # Demo media
+│   ├── results/                       # Evaluation outputs
+│   │   ├── aslr_evaluation.png
+│   │   ├── lunge_evaluation.png
+│   │   └── sts_evaluation.png
+│   └── screenshots/                   # UI interface captures
+│       ├── dashboard.png
+│       ├── exercise_details.png
+│       ├── live_session.png
+│       ├── my_rehabilitation.png
+│       └── session_summary.png
 │
 └── 🔬 UI-PRMD-Analysis-master/         # Raw clinical dataset (not tracked in git)
 ```
@@ -561,23 +568,17 @@ python -m ml.evaluate_models
 
 ### Patient Portal Interface Gallery
 
-#### Dashboard
-![Patient Dashboard](assets/screenshots/dashboard.png)
+| Dashboard | My Rehabilitation |
+|---|---|
+| ![Patient Dashboard](assets/screenshots/dashboard.png) | ![My Rehabilitation](assets/screenshots/my_rehabilitation.png) |
 
-#### My Rehabilitation
-![My Rehabilitation](assets/screenshots/my_rehabilitation.png)
+| Exercise Details | Live Session |
+|---|---|
+| ![Exercise Details](assets/screenshots/exercise_details.png) | ![Live Session](assets/screenshots/live_session.png) |
 
-#### Exercise Details
-![Exercise Details](assets/screenshots/exercise_details.png)
-
-#### Live Session
-![Live Session](assets/screenshots/live_session.png)
-
-#### Session Summary
-![Session Summary](assets/screenshots/session_summary.png)
-
-#### Progress Dashboard
-![Progress Dashboard](assets/screenshots/progress_dashboard.png)
+| Session Summary |
+|---|
+| ![Session Summary](assets/screenshots/session_summary.png) |
 
 ---
 

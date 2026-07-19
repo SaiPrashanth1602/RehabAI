@@ -1,36 +1,25 @@
-"""
-firebase.py
-
-Initializes Firebase Admin SDK and exposes a reusable
-Firestore database instance.
-"""
-
-from pathlib import Path
+import os
+import json
 
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-
-# Singleton instances
 _app = None
 _db = None
 
 
 def initialize_firebase():
-    """
-    Initialize Firebase only once.
-    """
-
     global _app
 
     if _app is None:
-        credentials_path = (
-            Path(__file__).parent
-            / "credentials"
-            / "firebase_key.json"
-        )
+        firebase_json = os.environ.get("FIREBASE_CREDENTIALS")
 
-        cred = credentials.Certificate(str(credentials_path))
+        if not firebase_json:
+            raise RuntimeError("FIREBASE_CREDENTIALS environment variable not found.")
+
+        cred_dict = json.loads(firebase_json)
+
+        cred = credentials.Certificate(cred_dict)
 
         _app = firebase_admin.initialize_app(cred)
 
@@ -38,10 +27,6 @@ def initialize_firebase():
 
 
 def get_firestore_db():
-    """
-    Returns Firestore database instance.
-    """
-
     global _db
 
     if _db is None:

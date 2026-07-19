@@ -1,6 +1,6 @@
 # frontend/utils/config.py
 
-API_URL = "http://127.0.0.1:8000/api/v1"
+API_URL = "https://rehabai-backend-j814.onrender.com/api/v1"
 APP_NAME = "RehabAI"
 VERSION = "1.0.0"
 REQUEST_TIMEOUT = 10

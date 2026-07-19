@@ -33,19 +33,10 @@ app.include_router(dashboard.router, prefix=settings.API_V1_STR)
 async def root():
     return {"message": "RehabAI Backend Running"}
 
-@app.get("/health", status_code=status.HTTP_200_OK, tags=["Health"])
-async def health_check():
-    firebase_status = "healthy"
-    try:
-        db = get_firestore_db()
-        db.collection("health_check").document("ping").get()
-    except Exception:
-        firebase_status = "unhealthy"
-
+@app.get("/health")
+async def health():
     return {
-        "status": "healthy" if firebase_status == "healthy" else "unhealthy",
-        "firebase_connection": firebase_status,
-        "timestamp": datetime.utcnow().isoformat() + "Z"
+        "status": "healthy"
     }
 
 if __name__ == "__main__":

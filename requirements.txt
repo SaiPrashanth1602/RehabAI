@@ -25,7 +25,10 @@ scipy>=1.11.0
 joblib>=1.3.0
 
 # --- Firebase (auth token validation on frontend) ---
-firebase-admin>=6.0.0
+# NOTE: firebase-admin>=7 requires protobuf>=5, but mediapipe requires protobuf<5.
+# Pin to 6.5.0 until mediapipe releases a version supporting protobuf 5+.
+firebase-admin==6.5.0
+protobuf>=4.25.3,<5.0.0
 
 # --- Utilities ---
 python-dotenv>=1.0.0

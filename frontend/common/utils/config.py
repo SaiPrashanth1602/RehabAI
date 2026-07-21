@@ -1,6 +1,11 @@
-# frontend/utils/config.py
+# frontend/common/utils/config.py
 
-API_URL = "https://rehabai-backend-j814.onrender.com/api/v1"
+import os
+
+# Load API URL from environment variable — falls back to production URL if not set.
+# For local development, add API_URL=http://localhost:8000/api/v1 to your .env file.
+API_URL = os.environ.get("API_URL", "https://rehabai-backend-j814.onrender.com/api/v1")
+
 APP_NAME = "RehabAI"
 VERSION = "1.0.0"
 REQUEST_TIMEOUT = 10

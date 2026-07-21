@@ -1,9 +1,31 @@
-streamlit
+# =============================================================================
+# RehabAI — Frontend Requirements (Streamlit Patient Portal)
+# Python 3.11 | Install with: pip install -r requirements.txt
+# =============================================================================
 
-requests==2.31.0
-plotly==5.16.0
-pandas==2.2.2
+# --- Web UI ---
+streamlit>=1.35.0
+
+# --- HTTP Client ---
+requests>=2.31.0
+
+# --- Data & Visualisation ---
+plotly>=5.16.0
+pandas>=2.0.0
 numpy==1.26.4
 
-mediapipe==0.10.14
-Pillow==10.4.0
+# --- AI / Computer Vision ---
+mediapipe>=0.10.14
+opencv-python>=4.9.0.80
+Pillow>=10.0.0
+
+# --- Machine Learning ---
+scikit-learn>=1.3.0
+scipy>=1.11.0
+joblib>=1.3.0
+
+# --- Firebase (auth token validation on frontend) ---
+firebase-admin>=6.0.0
+
+# --- Utilities ---
+python-dotenv>=1.0.0

@@ -12,21 +12,6 @@ import os
 import pandas as pd
 from datetime import datetime
 
-# ===========================================================================
-# 🛡️ BULLETPROOF WINDOWS VIRTUAL ENVIRONMENT PATH RESOLUTION
-# ===========================================================================
-try:
-    current_file_path = os.path.dirname(os.path.abspath(__file__))
-    root_dir = os.path.abspath(os.path.join(current_file_path, "..", "..", ".."))
-    candidate_paths = [
-        os.path.join(root_dir, ".venv311", "Lib", "site-packages"),
-        os.path.join(root_dir, ".venv", "Lib", "site-packages"),
-    ]
-    for path in candidate_paths:
-        if os.path.exists(path) and path not in sys.path:
-            sys.path.insert(0, path)
-except Exception:
-    pass
 
 import mediapipe as mp
 mp_pose_mod = mp.solutions.pose

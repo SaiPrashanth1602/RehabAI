@@ -449,49 +449,75 @@ RehabAI/
 
 ## ⚙️ Installation
 
-**Prerequisites:** Python 3.11+, Git, webcam, Firebase project with Firestore enabled.
+**Prerequisites:** Python 3.11, Git, a webcam, and a Firebase project with Firestore enabled.
 
 ### 1. Clone
 
 ```bash
-git clone https://github.com/your-username/RehabAI.git
+git clone https://github.com/SaiPrashanth1602/RehabAI.git
 cd RehabAI
 ```
 
-### 2. Virtual Environment
+### 2. Create Virtual Environment (Python 3.11 required)
 
 ```bash
-python -m venv .venv
-
 # Windows
-.\.venv\Scripts\activate
+py -3.11 -m venv .venv311
+.venv311\Scripts\activate
 
 # macOS / Linux
-source .venv/bin/activate
+python3.11 -m venv .venv311
+source .venv311/bin/activate
 ```
 
 ### 3. Install Dependencies
 
 ```bash
-pip install -r requirements_clean.txt
+# Frontend (Streamlit patient portal)
+pip install -r requirements.txt
+
+# Backend (FastAPI REST API)
+pip install -r backend_requirements.txt
 ```
 
-> **Note:** If MediaPipe fails to install automatically, run `pip install mediapipe` separately.
+> **Dependency note:** `firebase-admin` is pinned to `6.5.0` and `protobuf` to `<5.0.0`.
+> This is intentional — `mediapipe` requires `protobuf<5`. Do not upgrade these independently.
 
-### 4. Firebase Setup
+### 4. Verify Environment
+
+```bash
+python verify_env.py
+```
+
+All 13 packages should show `[OK]`. Fix any `[XX]` entries before proceeding.
+
+### 5. Firebase Setup
 
 1. Create a project at [console.firebase.google.com](https://console.firebase.google.com)
 2. Enable **Firestore** in Native mode
 3. Download a **Service Account Key** (JSON) from Project Settings → Service Accounts
 4. Save it to `backend/credentials/firebase_key.json`
-5. Create `.env` in the project root:
+5. Copy `.env.example` to `.env` and fill in your credentials:
 
-```env
-FIREBASE_KEY_PATH=backend/credentials/firebase_key.json
-SECRET_KEY=your-jwt-secret-key
+```bash
+copy .env.example .env   # Windows
+cp .env.example .env     # macOS / Linux
 ```
 
-### 5. (Optional) Retrain Models
+```env
+# Paste the full contents of firebase_key.json as a single-line JSON string
+FIREBASE_CREDENTIALS={"type":"service_account","project_id":"...", ...}
+
+# For local development (defaults to production URL if not set)
+API_URL=http://localhost:8000/api/v1
+```
+
+> **Windows shortcut** — load credentials directly from the key file:
+> ```powershell
+> $env:FIREBASE_CREDENTIALS = Get-Content backend\credentials\firebase_key.json -Raw
+> ```
+
+### 6. (Optional) Retrain Models
 
 Pre-trained `.pkl` files are included under `ml/models/`. To retrain from the UI-PRMD dataset:
 
@@ -503,25 +529,33 @@ python -m ml.train_models
 
 ## 🚀 Usage
 
-### 🔴 Live CV Analytics Loop
+> **Always activate your virtual environment first before running any command:**
+> ```bash
+> # Windows
+> .venv311\Scripts\activate
+> # macOS / Linux
+> source .venv311/bin/activate
+> ```
 
-```bash
-python main.py
+### ⚙️ Terminal 1 — Start the FastAPI Backend
+
+```powershell
+# Windows — load Firebase credentials and start backend
+$env:FIREBASE_CREDENTIALS = Get-Content backend\credentials\firebase_key.json -Raw
+python -m uvicorn backend.api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-> Stand in front of your webcam. The system detects pose, extracts biomechanical features, and overlays joint angles and rep counts. Press **`q`** to quit.
-
-### ⚙️ Start the FastAPI Backend
-
 ```bash
-uvicorn backend.api:app --reload --host 0.0.0.0 --port 8000
+# macOS / Linux
+export FIREBASE_CREDENTIALS=$(cat backend/credentials/firebase_key.json)
+python -m uvicorn backend.api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 | Endpoint | URL |
 |---|---|
-| 📖 Swagger UI (API Docs) | http://127.0.0.1:8000/docs |
-| 📄 ReDoc | http://127.0.0.1:8000/redoc |
-| 💚 Health Check | http://127.0.0.1:8000/health |
+| 📖 Swagger UI (API Docs) | http://localhost:8000/docs |
+| 📄 ReDoc | http://localhost:8000/redoc |
+| 💚 Health Check | http://localhost:8000/health |
 
 **Active API routes** (prefix: `/api/v1`):
 
@@ -536,11 +570,22 @@ uvicorn backend.api:app --reload --host 0.0.0.0 --port 8000
 | `/api/v1/dashboard/{patient_id}` | GET | Fetch exercise plan for patient dashboard |
 | `/api/v1/dashboard/exercise-library/{code}` | GET | Fetch exercise metadata from library |
 
-### 🧑‍💻 Launch Patient Portal
+### 🧑‍💻 Terminal 2 — Launch Patient Portal
 
 ```bash
 streamlit run frontend/patient/patient.py
 ```
+
+> Patient portal runs at **http://localhost:8501**
+> Start the backend (Terminal 1) first — the portal connects to it on load.
+
+### 🔴 Standalone Live CV Analytics Loop
+
+```bash
+python main.py
+```
+
+> Stand in front of your webcam. The system detects pose, extracts biomechanical features, and overlays joint angles and rep counts. Press **`q`** to quit. Does not require the backend.
 
 ### 🧑‍⚕️ Launch Doctor Portal
 
